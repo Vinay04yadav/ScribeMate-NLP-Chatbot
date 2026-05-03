@@ -11,6 +11,10 @@ import torch # Already likely added for summarizer
 import random
 import re
 
+try:
+    nltk.data.find('corpora/stopwords')
+except LookupError:
+    nltk.download('stopwords')
 
 # Global variable for spaCy model (load once)
 nlp_spacy = None # Initialize as None
