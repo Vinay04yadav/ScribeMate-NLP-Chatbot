@@ -11,10 +11,20 @@ import torch # Already likely added for summarizer
 import random
 import re
 
-try:
-    nltk.data.find('corpora/stopwords')
-except LookupError:
-    nltk.download('stopwords')
+
+def ensure_nltk_resource(resource_path: str, download_name: str) -> bool:
+    """Ensure required NLTK data exists in ephemeral cloud environments."""
+    try:
+        nltk.data.find(resource_path)
+        return True
+    except LookupError:
+        try:
+            nltk.download(download_name, quiet=True)
+            nltk.data.find(resource_path)
+            return True
+        except Exception as e:
+            print(f"ERROR: Failed to download NLTK resource '{download_name}': {e}")
+            return False
 
 # Global variable for spaCy model (load once)
 nlp_spacy = None # Initialize as None
@@ -39,6 +49,7 @@ except Exception as e:
 rake_nltk_var = None # Initialize as None
 print("INFO: Attempting to initialize RAKE...")
 try:
+    ensure_nltk_resource('corpora/stopwords', 'stopwords')
     # Rake uses NLTK stopwords, assumes relevant NLTK data is available
     rake_nltk_var = Rake()
     print("INFO: RAKE initialized successfully.")
